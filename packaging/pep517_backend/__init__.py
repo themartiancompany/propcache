@@ -1,2 +1,2 @@
 """PEP 517 build backend for optionally pre-building Cython."""
-import .hooks
+from . import hooks
