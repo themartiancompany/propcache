@@ -3,20 +3,26 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from sys import version_info as _python_version_tuple
+from typing import TypedDict
 
 from expandvars import expandvars
 
-from ._compat import load_toml_from_string  # noqa: WPS436
-from ._transformers import (  # noqa: WPS436
-    get_cli_kwargs_from_config,
-    get_enabled_cli_flags_from_config,
-)
+from ._compat import load_toml_from_string
+from ._transformers import get_cli_kwargs_from_config, get_enabled_cli_flags_from_config
 
 
-def get_local_cython_config() -> dict:
+class Config(TypedDict):
+    env: dict[str, str]
+    flags: dict[str, bool]
+    kwargs: dict[str, str | dict[str, str]]
+    src: list[str]
+
+
+def get_local_cython_config() -> Config:
     """Grab optional build dependencies from pyproject.toml config.
 
     :returns: config section from ``pyproject.toml``
@@ -70,20 +76,34 @@ def get_local_cython_config() -> dict:
     """
     config_toml_txt = (Path.cwd().resolve() / 'pyproject.toml').read_text()
     config_mapping = load_toml_from_string(config_toml_txt)
-    return config_mapping['tool']['local']['cythonize']
+    return config_mapping['tool']['local']['cythonize']  # type: ignore[no-any-return]
 
 
-def make_cythonize_cli_args_from_config(config) -> list[str]:
+def _configure_cython_line_tracing(config_kwargs: dict[str, str | dict[str, str]], cython_line_tracing_requested: bool) -> None:
+    """Configure Cython line tracing directives if requested."""
+    # If line tracing is requested, add it to the directives
+    if cython_line_tracing_requested:
+        directives = config_kwargs.setdefault('directive', {})
+        assert isinstance(directives, dict)  # Type narrowing for mypy
+        directives['linetrace'] = 'True'
+        directives['profile'] = 'True'
+
+
+def make_cythonize_cli_args_from_config(config: Config, cython_line_tracing_requested: bool = False) -> list[str]:
     py_ver_arg = f'-{_python_version_tuple.major!s}'
 
     cli_flags = get_enabled_cli_flags_from_config(config['flags'])
-    cli_kwargs = get_cli_kwargs_from_config(config['kwargs'])
+    config_kwargs = config['kwargs']
+
+    _configure_cython_line_tracing(config_kwargs, cython_line_tracing_requested)
+
+    cli_kwargs = get_cli_kwargs_from_config(config_kwargs)
 
     return cli_flags + [py_ver_arg] + cli_kwargs + ['--'] + config['src']
 
 
 @contextmanager
-def patched_env(env: dict[str, str], cython_line_tracing_requested: bool):
+def patched_env(env: dict[str, str], cython_line_tracing_requested: bool) -> Iterator[None]:
     """Temporary set given env vars.
 
     :param env: tmp env vars to set
@@ -92,7 +112,7 @@ def patched_env(env: dict[str, str], cython_line_tracing_requested: bool):
     :yields: None
     """
     orig_env = os.environ.copy()
-    expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}
+    expanded_env = {name: expandvars(var_val) for name, var_val in env.items()}  # type: ignore[no-untyped-call]
     os.environ.update(expanded_env)
 
     if cython_line_tracing_requested:

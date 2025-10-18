@@ -48,7 +48,6 @@ keep-going = false
 # https://cython.rtfd.io/en/latest/src/userguide/source_files_and_compilation.html#compiler-directives
 embedsignature = "True"
 emit_code_comments = "True"
-linetrace = "True"  # Implies `profile=True`
 
 [tool.local.cythonize.kwargs.compile-time-env]
 # This section can contain compile time env vars
@@ -64,6 +63,7 @@ linetrace = "True"  # Implies `profile=True`
 
 [tool.cibuildwheel]
 build-frontend = "build"
+enable = ["cpython-freethreading"]
 before-test = [
   # NOTE: Attempt to have pip pre-compile PyYAML wheel with our build
   # NOTE: constraints unset. The hope is that pip will cache that wheel
@@ -91,3 +91,6 @@ pure-python = "false"
 
 [tool.cibuildwheel.windows]
 before-test = []  # Windows cmd has different syntax and pip chooses wheels
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y libffi-devel || apk add --upgrade libffi-dev || apt-get install libffi-dev"

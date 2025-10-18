@@ -17,17 +17,17 @@ repos:
     additional_dependencies:
     - wemake-python-styleguide
 - repo: https://github.com/PyCQA/isort
-  rev: '5.13.2'
+  rev: '6.0.1'
   hooks:
   - id: isort
 - repo: https://github.com/psf/black
-  rev: '24.8.0'
+  rev: '25.1.0'
   hooks:
   - id: black
     language_version: python3  # Should be a command that runs python
 
 - repo: https://github.com/python-jsonschema/check-jsonschema.git
-  rev: 0.29.3
+  rev: 0.33.2
   hooks:
   - id: check-github-workflows
     files: ^\.github/workflows/[^/]+$
@@ -71,30 +71,30 @@ repos:
   - id: detect-private-key
     exclude: ^examples/
 - repo: https://github.com/asottile/pyupgrade
-  rev: 'v3.17.0'
+  rev: 'v3.20.0'
   hooks:
   - id: pyupgrade
     args: ['--py39-plus']
 - repo: https://github.com/PyCQA/flake8
-  rev: '7.1.1'
+  rev: '7.3.0'
   hooks:
   - id: flake8
     exclude: "^docs/"
 
 - repo: https://github.com/codespell-project/codespell.git
-  rev: v2.3.0
+  rev: v2.4.1
   hooks:
   - id: codespell
 
 - repo: https://github.com/adrienverge/yamllint.git
-  rev: v1.35.1
+  rev: v1.37.1
   hooks:
   - id: yamllint
     args:
     - --strict
 
 - repo: https://github.com/MarcoGorelli/cython-lint.git
-  rev: v0.16.2
+  rev: v0.16.7
   hooks:
   - id: cython-lint
 
@@ -107,45 +107,17 @@ repos:
       ^[^/]+[.]rst$
 
 - repo: https://github.com/pre-commit/mirrors-mypy.git
-  rev: v1.11.2
+  rev: v1.16.1
   hooks:
-  - id: mypy
-    alias: mypy-py313
-    name: MyPy, for Python 3.13
-    additional_dependencies:
-    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
-    - pytest
-    - pytest_codspeed
-    - tomli  # requirement of packaging/pep517_backend/
-    - types-setuptools  # requirement of packaging/pep517_backend/
-    args:
-    - --python-version=3.13
-    - --txt-report=.tox/.tmp/.mypy/python-3.13
-    - --cobertura-xml-report=.tox/.tmp/.mypy/python-3.13
-    - --html-report=.tox/.tmp/.mypy/python-3.13
-    pass_filenames: false
-  - id: mypy
-    alias: mypy-py312
-    name: MyPy, for Python 3.12
-    additional_dependencies:
-    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
-    - pytest
-    - pytest_codspeed
-    - tomli  # requirement of packaging/pep517_backend/
-    - types-setuptools  # requirement of packaging/pep517_backend/
-    args:
-    - --python-version=3.12
-    - --txt-report=.tox/.tmp/.mypy/python-3.12
-    - --cobertura-xml-report=.tox/.tmp/.mypy/python-3.12
-    - --html-report=.tox/.tmp/.mypy/python-3.12
-    pass_filenames: false
   - id: mypy
     alias: mypy-py311
     name: MyPy, for Python 3.11
     additional_dependencies:
+    - Cython
+    - expandvars
     - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
     - pytest
-    - pytest_codspeed
+    - pytest_codspeed==3.0.0
     - tomli  # requirement of packaging/pep517_backend/
     - types-setuptools  # requirement of packaging/pep517_backend/
     - types-Pygments
@@ -156,26 +128,9 @@ repos:
     - --cobertura-xml-report=.tox/.tmp/.mypy/python-3.11
     - --html-report=.tox/.tmp/.mypy/python-3.11
     pass_filenames: false
-  - id: mypy
-    alias: mypy-py39
-    name: MyPy, for Python 3.9
-    additional_dependencies:
-    - lxml  # dep of `--txt-report`, `--cobertura-xml-report` & `--html-report`
-    - pytest
-    - pytest_codspeed
-    - tomli  # requirement of packaging/pep517_backend/
-    - types-setuptools  # requirement of packaging/pep517_backend/
-    - types-Pygments
-    - types-colorama
-    args:
-    - --python-version=3.9
-    - --txt-report=.tox/.tmp/.mypy/python-3.9
-    - --cobertura-xml-report=.tox/.tmp/.mypy/python-3.9
-    - --html-report=.tox/.tmp/.mypy/python-3.9
-    pass_filenames: false
 
 - repo: https://github.com/rhysd/actionlint.git
-  rev: v1.7.3
+  rev: v1.7.7
   hooks:
   - id: actionlint-docker
     args:
